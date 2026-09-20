@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "status": "phase_1_asset_validation_passed",
+  "source": {
+    "repository": "https://github.com/unitreerobotics/unitree_ros.git",
+    "commit": "ccfc6fd8430a17ba3dacef9a1e2faf64ff3b0aee",
+    "directory": "robots/h1_2_description",
+    "license": "BSD-3-Clause",
+    "retrieved_on": "2026-09-20"
+  },
+  "artifacts": {
+    "urdf": {
+      "filename": "h1_2_handless.urdf",
+      "sha256": "e5dae04b4f16590d34a64d8bb9a0bcc2a24072f79b05ec4371d49866fb7228bd"
+    },
+    "mjcf": {
+      "filename": "h1_2_handless.xml",
+      "sha256": "76d614d3ffcb3419759ab98b00f1458c1ac57cab78f55106cccaa71a9e9975e0"
+    }
+  },
+  "static_interface": {
+    "root_link": "pelvis",
+    "link_count": 32,
+    "actuated_joint_count": 27,
+    "policy_joint_count": 21,
+    "excluded_wrist_joints": [
+      "left_wrist_roll_joint",
+      "left_wrist_pitch_joint",
+      "left_wrist_yaw_joint",
+      "right_wrist_roll_joint",
+      "right_wrist_pitch_joint",
+      "right_wrist_yaw_joint"
+    ],
+    "policy_joint_order": [
+      "left_hip_yaw_joint",
+      "left_hip_pitch_joint",
+      "left_hip_roll_joint",
+      "left_knee_joint",
+      "left_ankle_pitch_joint",
+      "left_ankle_roll_joint",
+      "right_hip_yaw_joint",
+      "right_hip_pitch_joint",
+      "right_hip_roll_joint",
+      "right_knee_joint",
+      "right_ankle_pitch_joint",
+      "right_ankle_roll_joint",
+      "torso_joint",
+      "left_shoulder_pitch_joint",
+      "left_shoulder_roll_joint",
+      "left_shoulder_yaw_joint",
+      "left_elbow_joint",
+      "right_shoulder_pitch_joint",
+      "right_shoulder_roll_joint",
+      "right_shoulder_yaw_joint",
+      "right_elbow_joint"
+    ],
+    "candidate_support_links": ["left_ankle_roll_link", "right_ankle_roll_link"],
+    "candidate_right_end_effector_link": "right_wrist_yaw_link"
+  },
+  "runtime_validation": {
+    "host": {
+      "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "driver_version": "595.84",
+      "torch_cuda_available": true
+    },
+    "mujoco_smoke": {
+      "status": "passed",
+      "asset": "h1_2_handless.xml",
+      "root_joint": "floating_base_joint",
+      "timestep_s": 0.002,
+      "simulated_duration_s": 1.0,
+      "actuator_count": 27,
+      "policy_actuator_count": 21,
+      "contact_count_after_step": 8,
+      "finite_state": true
+    },
+    "isaac_lab_import": {
+      "status": "passed_with_follow_up",
+      "importer": "isaacsim-asset-isolated==6.1.0.0",
+      "mjcf_usd": "converted successfully in a temporary directory",
+      "urdf_fixed_base_usd": "converted successfully in a temporary directory",
+      "revolute_joint_count": 27,
+      "policy_joint_count": 21,
+      "articulation_root": "/h1_2/Geometry/pelvis",
+      "fixed_joint_count": 2,
+      "follow_up": "The converter did not preserve usable implicit PD stiffness and damping from the MJCF motor declarations; Phase 2 must define and validate drives explicitly."
+    }
+  }
+}
