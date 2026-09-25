@@ -1,12 +1,11 @@
 {
-  "schema_version": 1,
-  "status": "phase_1_asset_validation_passed",
+  "schema_version": 2,
+  "status": "phase_2_and_phase_3_fixed_base_validation_passed",
   "source": {
     "repository": "https://github.com/unitreerobotics/unitree_ros.git",
     "commit": "ccfc6fd8430a17ba3dacef9a1e2faf64ff3b0aee",
     "directory": "robots/h1_2_description",
-    "license": "BSD-3-Clause",
-    "retrieved_on": "2026-09-20"
+    "license": "BSD-3-Clause"
   },
   "artifacts": {
     "urdf": {
@@ -16,6 +15,21 @@
     "mjcf": {
       "filename": "h1_2_handless.xml",
       "sha256": "76d614d3ffcb3419759ab98b00f1458c1ac57cab78f55106cccaa71a9e9975e0"
+    },
+    "derived_free_base_urdf": {
+      "filename": "derived/h1_2_handless_free_base.urdf",
+      "generator": "tools/derive_h1_2_free_base_asset.py",
+      "source_modifications": {
+        "added_mesh_collisions": [
+          "left_hip_yaw_link",
+          "left_ankle_pitch_link",
+          "right_hip_yaw_link",
+          "right_ankle_pitch_link",
+          "left_wrist_yaw_link",
+          "right_wrist_yaw_link"
+        ],
+        "logo_link_inertial": {"mass_kg": 0.001, "diagonal_inertia_kg_m2": 1e-08}
+      }
     }
   },
   "static_interface": {
@@ -57,33 +71,139 @@
     "candidate_support_links": ["left_ankle_roll_link", "right_ankle_roll_link"],
     "candidate_right_end_effector_link": "right_wrist_yaw_link"
   },
-  "runtime_validation": {
-    "host": {
-      "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
-      "driver_version": "595.84",
-      "torch_cuda_available": true
+  "controller": {
+    "physics_dt_s": 0.005,
+    "control_decimation": 4,
+    "control_frequency_hz": 50,
+    "action_scale_rad": 0.1,
+    "fixed_base": true,
+    "fixed_base_root_position_w_m": [0.0, 0.0, 0.9625],
+    "wrist_target_rad": 0.0,
+    "gains_source": "Isaac Lab H1_CFG adapted to H1-2 joint names; wrist gains are conservative Phase 2 engineering values"
+  },
+  "phase_2_runtime_validation": {
+    "status": "passed",
+    "date": "2026-09-21",
+    "command": "uv run --no-sync python -m h1_whole_body_reaching.scripts.zero_action_rollout --device cuda:0 --urdf third_party/unitree_ros/robots/h1_2_description/h1_2_handless.urdf --steps 200 --log-file logs/h1_2/phase_2_zero_action.json",
+    "isaac_sim_version": "6.1.0",
+    "kit_version": "110.3.0",
+    "device": "NVIDIA GeForce RTX 4060 Laptop GPU (8 GiB)",
+    "steps": 200,
+    "simulated_duration_s": 1.0,
+    "max_position_error_rad": 0.047807276248931885,
+    "finite_state": true,
+    "urdf_fk_to_isaac_sim_end_effector_error_m": 4.1861452762116523e-07,
+    "visual_inspection": "Superseded by the grounded systematic visual/contact capture recorded in phase_2_grounded_visual_validation.",
+    "resolved_startup_issue": "The ~/.cache/ov path was a dangling symlink to /media/zlc/T7/isaac_env/ov_cache. It was moved to ~/.cache/ov.broken-link-20260920 and replaced with a local directory.",
+    "resolved_gui_resource_issue": "With 16 GiB RAM and no swap, nvidia_uvm could not allocate an order-9 page block during GPU registration. A persistent 16 GiB /swapfile was added before the GUI smoke validation."
+  },
+  "phase_2_gui_smoke_validation": {
+    "status": "superseded_by_grounded_visual_evidence",
+    "date": "2026-09-20",
+    "command": "env -u PYTHONPATH -u LD_LIBRARY_PATH -u AMENT_PREFIX_PATH -u COLCON_PREFIX_PATH -u ROS_VERSION -u ROS_PYTHON_VERSION -u ROS_DOMAIN_ID __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia __VK_LAYER_NV_optimus=NVIDIA_only timeout 120 uv run --no-sync python -m h1_whole_body_reaching.scripts.zero_action_rollout --visualizer kit --device cuda:0 --urdf third_party/unitree_ros/robots/h1_2_description/h1_2_handless.urdf --steps 20 --log-file logs/h1_2/phase_2_gui_smoke.json",
+    "device": "NVIDIA GeForce RTX 4060 Laptop GPU (8 GiB) via PRIME render offload",
+    "steps": 20,
+    "simulated_duration_s": 0.1,
+    "max_position_error_rad": 0.02624887228012085,
+    "finite_state": true,
+    "visible_scene": true,
+    "automatic_shutdown_s": 92.698,
+    "superseded_reason": "The informal image review missed that the shoe collision meshes were approximately 0.0875 m above the ground at the old 1.05 m pelvis height."
+  },
+  "phase_2_grounded_visual_validation": {
+    "status": "passed",
+    "date": "2026-09-21",
+    "fixed_base_root_position_w_m": [0.0, 0.0, 0.9625],
+    "evidence_directory": "assets/h1_2/phase_2_visual_evidence",
+    "foot_normal_force_norms_n": {
+      "left_ankle_roll_link": 161.4952392578125,
+      "right_ankle_roll_link": 163.5150146484375
     },
-    "mujoco_smoke": {
-      "status": "passed",
-      "asset": "h1_2_handless.xml",
-      "root_joint": "floating_base_joint",
-      "timestep_s": 0.002,
-      "simulated_duration_s": 1.0,
-      "actuator_count": 27,
-      "policy_actuator_count": 21,
-      "contact_count_after_step": 8,
-      "finite_state": true
-    },
-    "isaac_lab_import": {
-      "status": "passed_with_follow_up",
-      "importer": "isaacsim-asset-isolated==6.1.0.0",
-      "mjcf_usd": "converted successfully in a temporary directory",
-      "urdf_fixed_base_usd": "converted successfully in a temporary directory",
-      "revolute_joint_count": 27,
-      "policy_joint_count": 21,
-      "articulation_root": "/h1_2/Geometry/pelvis",
-      "fixed_joint_count": 2,
-      "follow_up": "The converter did not preserve usable implicit PD stiffness and damping from the MJCF motor declarations; Phase 2 must define and validate drives explicitly."
+    "representative_positive_joint_motions": [
+      "right_knee_joint",
+      "torso_joint",
+      "right_shoulder_pitch_joint",
+      "right_elbow_joint"
+    ],
+    "all_27_joint_direction_checks_passed": true,
+    "asset_acceptance": "Accepted for fixed-base Phase 2/3 only; repair or merge omitted-collision/decorative links before free-base safety claims.",
+    "dynamic_zmp_scope": "Not valid in the fixed-pelvis scene because the root constraint shares external load."
+  },
+  "phase_3_fixed_target_validation": {
+    "status": "passed",
+    "date": "2026-09-21",
+    "command": "env -u PYTHONPATH -u LD_LIBRARY_PATH -u AMENT_PREFIX_PATH -u COLCON_PREFIX_PATH -u ROS_VERSION -u ROS_PYTHON_VERSION -u ROS_DOMAIN_ID uv run --no-sync python -m h1_whole_body_reaching.scripts.fixed_target_rollout --device cuda:0 --urdf third_party/unitree_ros/robots/h1_2_description/h1_2_handless.urdf --log-file logs/h1_2/phase_3_fixed_target.json",
+    "end_effector_body_name": "right_wrist_yaw_link",
+    "target_position_w_m": [0.0843, -0.2163, 0.9063],
+    "success_tolerance_m": 0.01,
+    "observation_dimension": 6,
+    "scripted_action": {"right_shoulder_pitch_joint": -0.5},
+    "initial_target_error_m": 0.01993394444085502,
+    "final_target_error_m": 0.003453159602370314,
+    "termination": {"success": true, "time_out": false},
+    "steps_per_phase": 200,
+    "simulated_duration_s": 1.0,
+    "visual_inspection": "The grounded systematic Phase 2 capture supersedes the earlier informal pose and foot judgment."
+  },
+  "phase_3_fixed_base_workspace_validation": {
+    "status": "passed",
+    "date": "2026-09-21",
+    "device": "NVIDIA GeForce RTX 4060 Laptop GPU (8 GiB)",
+    "evidence_file": "assets/h1_2/phase_3_workspace_evidence.json",
+    "target_lower_w_m": [0.06, -0.24, 0.8725],
+    "target_upper_w_m": [0.10, -0.19, 0.9325],
+    "success_tolerance_m": 0.05,
+    "probe_points": 9,
+    "passed_points": 9,
+    "initial_target_error_range_m": [0.015248862602027242, 0.05382992314039908],
+    "final_target_error_range_m": [0.011806308132904052, 0.027835003234763945],
+    "action_range": [-1.0, 1.0],
+    "action_scale_rad": 0.1,
+    "fixed_base_only": true,
+    "vectorized_smoke": {
+      "num_envs": 2,
+      "steps": 30,
+      "observation_dimension": 66,
+      "reward_range": [0.9589693546295166, 2.9716570377349854],
+      "terminated_count": 2,
+      "truncated_count": 0
     }
+  },
+  "phase_4_reset_termination_validation": {
+    "status": "passed",
+    "date": "2026-09-20",
+    "command": "env -u PYTHONPATH -u LD_LIBRARY_PATH -u AMENT_PREFIX_PATH -u COLCON_PREFIX_PATH -u ROS_VERSION -u ROS_PYTHON_VERSION -u ROS_DOMAIN_ID timeout 180 uv run --no-sync python -m h1_whole_body_reaching.scripts.reset_termination_rollout --device cuda:0 --urdf third_party/unitree_ros/robots/h1_2_description/h1_2_handless.urdf --num-seeds 4 --seed 7 --settle-steps 100 --log-file logs/h1_2/phase_4_reset_termination.json",
+    "reset": {
+      "seed_range": [7, 10],
+      "policy_joint_position_offset_bound_rad": 0.01,
+      "wrist_reset_targets_preserved": true,
+      "settle_steps": 100,
+      "simulated_duration_per_seed_s": 0.5
+    },
+    "termination_set": ["success", "time_out", "invalid_state", "joint_limit_violation"],
+    "results": {
+      "finite_state": true,
+      "joint_limit_violation": false,
+      "time_out": false,
+      "max_settled_target_error_rad": 0.04142874479293823
+    }
+  },
+  "free_base_asset_gate": {
+    "status": "static_asset_validation_passed_runtime_smoke_blocked_by_host_session",
+    "date": "2026-09-21",
+    "static_validation": {
+      "test": "h1_whole_body_reaching/tests/test_interfaces.py",
+      "result": "10 passed",
+      "source_link_count": 32,
+      "actuated_joint_count": 27,
+      "mesh_paths_are_relative": true
+    },
+    "runtime_command": "uv run --no-sync python -m h1_whole_body_reaching.scripts.free_base_standing_smoke --device cuda:0 --urdf assets/h1_2/derived/h1_2_handless_free_base.urdf --steps 500 --log-file logs/h1_2/free_base_standing_smoke.json",
+    "runtime_failure": "Isaac Sim process exited after asset import without traceback or JSON result. The same behavior occurred for a one-step original fixed-base baseline; kernel logs had no OOM-killer record.",
+    "unvalidated_claims": [
+      "free-base standing stability",
+      "bilateral foot-contact forces",
+      "free-base dynamic CoM/ZMP"
+    ]
   }
 }

@@ -1,15 +1,19 @@
 # Unitree H1-2 asset provenance
 
-The project does not vendor the 80 MiB official description directory. Fetch it from Unitree's `unitree_ros` repository at commit `ccfc6fd8430a17ba3dacef9a1e2faf64ff3b0aee` and validate it before use:
+The project does not vendor the official description directory. Fetch it from Unitree's `unitree_ros` repository at commit `ccfc6fd8430a17ba3dacef9a1e2faf64ff3b0aee` and validate it before use:
 
 ```bash
-git clone --depth 1 --filter=blob:none --sparse https://github.com/unitreerobotics/unitree_ros.git third_party/unitree_ros
-git -C third_party/unitree_ros sparse-checkout set robots/h1_2_description
-python tools/validate_h1_2_description.py third_party/unitree_ros/robots/h1_2_description
+git clone --filter=blob:none --no-checkout https://github.com/unitreerobotics/unitree_ros.git third_party/unitree_ros
+git -C third_party/unitree_ros checkout ccfc6fd8430a17ba3dacef9a1e2faf64ff3b0aee -- robots/h1_2_description
+uv run python tools/validate_h1_2_description.py third_party/unitree_ros/robots/h1_2_description
+uv run --with mujoco --with numpy python tools/smoke_h1_2_mujoco.py \
+  third_party/unitree_ros/robots/h1_2_description/h1_2_handless.xml
 ```
 
-The source is BSD-3-Clause licensed. Preserve its copyright and license text if the URDF, MJCF, or meshes are copied into this repository. `asset_manifest.json` records the exact upstream commit and checksums for the handless URDF and MJCF used by the FYP.
+The source is BSD-3-Clause licensed. Preserve its copyright and license text if any source asset is redistributed. `asset_manifest.json` records the exact upstream commit, checksums, frozen joint mapping, and Phase 2 controller parameters.
 
-Phase 1 validation confirmed the source model's 27 actuated joints and the 21-joint policy order formed by excluding both three-DoF wrists. On an RTX 4060 host, the handless MJCF loaded and stepped for 1.0 s in MuJoCo without a non-finite state; it also retained eight contacts after stepping. Isaac Lab's standalone importer generated both an MJCF USD and a fixed-base URDF USD, each with 27 revolute joints and a pelvis articulation root.
+Phase 1 validated the static interface, direct MuJoCo dynamics, and standalone Isaac Lab conversion. Phase 2 adds the maintained fixed-base configuration and zero-action rollout under `h1_whole_body_reaching/`.
 
-The importer reports that the MJCF motor declarations do not create usable USD drive stiffness or damping. Do not use the converted USD for control until Phase 2 defines the PD drives, nominal pose, contact configuration, and fixed wrist behavior explicitly. See `phase_1_asset_validation.md` and `asset_manifest.json` for the frozen evidence and known limitations.
+`derived/h1_2_handless_free_base.urdf` is a project-owned derivative for the next free-base gate. Generate it
+from the pinned source with `uv run --no-sync python tools/derive_h1_2_free_base_asset.py <source> <output>`.
+Its scope and validation status are recorded in `free_base_validation.md`.

@@ -1,0 +1,149 @@
+{
+  "status": "passed",
+  "fixed_base": true,
+  "physics_dt_s": 0.005,
+  "images": {
+    "nominal_pose": "nominal_pose.png",
+    "feet_contact": "feet_contact.png",
+    "right_knee_joint": "positive_right_knee_joint.png",
+    "torso_joint": "positive_torso_joint.png",
+    "right_shoulder_pitch_joint": "positive_right_shoulder_pitch_joint.png",
+    "right_elbow_joint": "positive_right_elbow_joint.png"
+  },
+  "foot_body_positions_w_m": {
+    "left_ankle_roll_link": [
+      0.019154708832502365,
+      0.16883033514022827,
+      0.044609710574150085
+    ],
+    "right_ankle_roll_link": [
+      0.021954543888568878,
+      -0.16685286164283752,
+      0.044612377882003784
+    ]
+  },
+  "foot_normal_force_norms_n": {
+    "left_ankle_roll_link": 161.4952392578125,
+    "right_ankle_roll_link": 163.5150146484375
+  },
+  "representative_positive_joint_motions": {
+    "right_knee_joint": {
+      "measured_body_name": "right_ankle_pitch_link",
+      "nominal_target_rad": 0.7900000214576721,
+      "positive_target_rad": 1.0399999618530273,
+      "achieved_position_rad": 0.9821732640266418,
+      "soft_limit_rad": [
+        -0.004499912261962891,
+        2.07450008392334
+      ],
+      "body_displacement_w_m": [
+        -0.10668359696865082,
+        0.00019663572311401367,
+        0.03378163278102875
+      ],
+      "body_displacement_norm_m": 0.11190454661846161,
+      "measured_local_axis": "x",
+      "nominal_axis_w": [
+        0.998778760433197,
+        0.048221834003925323,
+        0.010752218775451183
+      ],
+      "positive_axis_w": [
+        0.9943830966949463,
+        0.022130584344267845,
+        -0.10350140184164047
+      ],
+      "axis_dot_before_after": 0.9931229948997498,
+      "axis_rotation_rad": 0.11734481155872345
+    },
+    "torso_joint": {
+      "measured_body_name": "torso_link",
+      "nominal_target_rad": 0.0,
+      "positive_target_rad": 0.25,
+      "achieved_position_rad": 0.2547455430030823,
+      "soft_limit_rad": [
+        -2.114999771118164,
+        2.114999771118164
+      ],
+      "body_displacement_w_m": [
+        5.154288373887539e-08,
+        6.984919309616089e-10,
+        2.384185791015625e-07
+      ],
+      "body_displacement_norm_m": 2.439273885102011e-07,
+      "measured_local_axis": "x",
+      "nominal_axis_w": [
+        0.9999995827674866,
+        0.0008847747812978923,
+        1.540609991934616e-05
+      ],
+      "positive_axis_w": [
+        0.9679248332977295,
+        0.25123998522758484,
+        1.6700705600669608e-05
+      ],
+      "axis_dot_before_after": 0.9681466817855835,
+      "axis_rotation_rad": 0.25307658314704895
+    },
+    "right_shoulder_pitch_joint": {
+      "measured_body_name": "right_elbow_link",
+      "nominal_target_rad": 0.2800000011920929,
+      "positive_target_rad": 0.5299999713897705,
+      "achieved_position_rad": 0.46013590693473816,
+      "soft_limit_rad": [
+        -2.9045000076293945,
+        1.3344998359680176
+      ],
+      "body_displacement_w_m": [
+        -0.05890375375747681,
+        0.006321370601654053,
+        0.02049541473388672
+      ],
+      "body_displacement_norm_m": 0.06268711388111115,
+      "measured_local_axis": "x",
+      "nominal_axis_w": [
+        0.6712766289710999,
+        -0.05224978178739548,
+        -0.7393630146980286
+      ],
+      "positive_axis_w": [
+        0.5289872288703918,
+        -0.08047769218683243,
+        -0.8448050618171692
+      ],
+      "axis_dot_before_after": 0.9839193224906921,
+      "axis_rotation_rad": 0.1795770674943924
+    },
+    "right_elbow_joint": {
+      "measured_body_name": "right_wrist_roll_link",
+      "nominal_target_rad": 0.5199999809265137,
+      "positive_target_rad": 0.7699999809265137,
+      "achieved_position_rad": 0.7930743098258972,
+      "soft_limit_rad": [
+        -0.7435001134872437,
+        2.9734997749328613
+      ],
+      "body_displacement_w_m": [
+        -0.019718028604984283,
+        0.001379936933517456,
+        -0.013795018196105957
+      ],
+      "body_displacement_norm_m": 0.02410409413278103,
+      "measured_local_axis": "x",
+      "nominal_axis_w": [
+        0.6715079545974731,
+        -0.052223771810531616,
+        -0.7391548752784729
+      ],
+      "positive_axis_w": [
+        0.5015248656272888,
+        -0.03985564783215523,
+        -0.8642247319221497
+      ],
+      "axis_dot_before_after": 0.977655291557312,
+      "axis_rotation_rad": 0.21179434657096863
+    }
+  },
+  "finite_state": true,
+  "contact_interpretation": "Non-zero forces confirm ground contact only. The fixed pelvis shares external load, so these forces must not be interpreted as dynamic whole-body ZMP evidence."
+}

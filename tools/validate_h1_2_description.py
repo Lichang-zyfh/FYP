@@ -58,8 +58,7 @@ def validate(description_dir: Path) -> dict[str, object]:
     joint_names = tuple(joint.attrib["name"] for joint in joints)
     links = {link.attrib["name"] for link in root.findall("link")}
     child_links = {child.attrib["link"] for joint in root.findall("joint") for child in joint.findall("child")}
-    parent_links = {parent.attrib["link"] for joint in root.findall("joint") for parent in joint.findall("parent")}
-    root_links = sorted(parent_links - child_links)
+    root_links = sorted(links - child_links)
     errors: list[str] = []
     if joint_names != EXPECTED_JOINTS:
         errors.append("Actuated joint names or ordering differs from the frozen official interface.")
