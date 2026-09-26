@@ -21,13 +21,13 @@ SCRIPTED_RIGHT_SHOULDER_PITCH_ACTION = -0.5
 class ReachingTaskCfg:
     """Phase 3 vectorized reaching-task parameters.
 
-    The narrow workspace is centered on the validated fixed target. Its eight
-    corners and center passed the fixed-base bounded-action probe at the 0.05 m
-    success criterion. This is not a free-base whole-body workspace claim.
+    The narrow B0 workspace is outside the initial 0.05 m success radius and
+    its representative lower and upper corners passed free-base IK/PD probes.
+    This is not a general whole-body workspace claim.
     """
 
-    target_lower_w_m: tuple[float, float, float] = (0.06, -0.24, 0.8725)
-    target_upper_w_m: tuple[float, float, float] = (0.10, -0.19, 0.9325)
+    target_lower_w_m: tuple[float, float, float] = (0.1215, -0.221, 0.909)
+    target_upper_w_m: tuple[float, float, float] = (0.1225, -0.219, 0.911)
     success_tolerance_m: float = 0.05
     success_hold_duration_s: float = 0.5
     reaching_reward_scale: float = 1.0
@@ -37,6 +37,40 @@ class ReachingTaskCfg:
     free_base_tilt_grace_duration_s: float = 0.25
     free_base_min_foot_contact_force_n: float = 20.0
     free_base_contact_grace_duration_s: float = 0.10
+
+
+@dataclass
+class StandingTaskCfg:
+    """Reward configuration for the Phase 6 fixed-pose standing task.
+
+    The standing task intentionally contains no target, end-effector, or
+    reaching-success term. All weights are unitless reward multipliers.
+    """
+
+    upright_reward_weight: float = 1.0
+    base_height_reward_weight: float = 1.0
+    foot_contact_reward_weight: float = 0.5
+    posture_reward_weight: float = 0.5
+    action_smoothness_reward_weight: float = 0.05
+    fall_penalty: float = 5.0
+    posture_error_scale_rad: float = 0.25
+    base_height_error_scale_m: float = 0.10
+
+
+def validate_standing_task_cfg(task_cfg: StandingTaskCfg) -> None:
+    """Validate Phase 6 standing reward parameters."""
+    weights = (
+        task_cfg.upright_reward_weight,
+        task_cfg.base_height_reward_weight,
+        task_cfg.foot_contact_reward_weight,
+        task_cfg.posture_reward_weight,
+        task_cfg.action_smoothness_reward_weight,
+        task_cfg.fall_penalty,
+    )
+    if any(not isfinite(weight) or weight < 0.0 for weight in weights):
+        raise ValueError("Standing reward weights must be finite and non-negative.")
+    if task_cfg.posture_error_scale_rad <= 0.0 or task_cfg.base_height_error_scale_m <= 0.0:
+        raise ValueError("Standing reward error scales must be positive.")
 
 
 @dataclass(frozen=True)
@@ -105,6 +139,28 @@ def validate_reaching_task_cfg(task_cfg: ReachingTaskCfg) -> None:
         raise ValueError("Free-base foot-contact force threshold must be positive.")
     if task_cfg.free_base_contact_grace_duration_s < 0.0:
         raise ValueError("Free-base contact grace duration must be non-negative.")
+
+
+def target_box_corners_and_center(task_cfg: ReachingTaskCfg) -> tuple[tuple[float, float, float], ...]:
+    """Return the eight target-box corners followed by its center [m]."""
+    validate_reaching_task_cfg(task_cfg)
+    lower = task_cfg.target_lower_w_m
+    upper = task_cfg.target_upper_w_m
+    corners = tuple((x, y, z) for x in (lower[0], upper[0]) for y in (lower[1], upper[1]) for z in (lower[2], upper[2]))
+    center = tuple((low + high) / 2.0 for low, high in zip(lower, upper, strict=True))
+    return (*corners, center)
+
+
+def target_box_initial_errors_m(
+    end_effector_position_w_m: Sequence[float], task_cfg: ReachingTaskCfg
+) -> tuple[float, ...]:
+    """Return initial wrist errors for every target-box corner and center [m]."""
+    if len(end_effector_position_w_m) != 3 or not all(isfinite(value) for value in end_effector_position_w_m):
+        raise ValueError("End-effector position must contain three finite coordinates.")
+    return tuple(
+        sqrt(sum((target_coordinate - wrist_coordinate) ** 2 for target_coordinate, wrist_coordinate in zip(target, end_effector_position_w_m, strict=True)))
+        for target in target_box_corners_and_center(task_cfg)
+    )
 
 
 def reaching_reward(target_error_m: float, task_cfg: ReachingTaskCfg, success: bool) -> float:
